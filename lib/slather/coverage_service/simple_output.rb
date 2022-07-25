@@ -14,6 +14,8 @@ module Slather
       def post
         total_project_lines = 0
         total_project_lines_tested = 0
+        total_relevant_branches = 0
+        total_branches_tested = 0
         coverage_files.each do |coverage_file|
           # ignore lines that don't count towards coverage (comments, whitespace, etc). These are nil in the array.
 
@@ -23,6 +25,9 @@ module Slather
 
           total_project_lines_tested += lines_tested
           total_project_lines += total_lines
+
+          total_relevant_branches += coverage_file.num_branches_testable
+          total_branches_tested += coverage_file.num_branches_tested
 
           puts "#{coverage_file.source_file_pathname_relative_to_repo_root}: #{lines_tested} of #{total_lines} lines (#{percentage}%)"
         end
@@ -43,8 +48,9 @@ module Slather
         end
 
         total_percentage = decimal_f([(total_project_lines_tested / total_project_lines.to_f) * 100.0])
-        puts "Tested #{total_project_lines_tested}/#{total_project_lines} statements"
-        puts "Test Coverage: #{total_percentage}%"
+        total_branch_percentage = decimal_f([(total_branches_tested / total_relevant_branches.to_f) * 100.0])
+        puts "Tested #{total_project_lines_tested}/#{total_project_lines} lines. (#{total_percentage}%)"
+        puts "Tested #{total_branches_tested}/#{total_relevant_branches} branches. (#{total_branch_percentage}%)"
       end
 
     end
